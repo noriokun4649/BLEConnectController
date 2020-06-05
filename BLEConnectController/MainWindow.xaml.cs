@@ -35,13 +35,22 @@ namespace BLEConnectController
             serviceUUID.Add("led", "e95dd91d-251d-470a-a062-fa1922dfa9a8");
             buttonUUID.Add("buttonA", "e95dda90-251d-470a-a062-fa1922dfa9a8");
             buttonUUID.Add("buttonB", "e95dda91-251d-470a-a062-fa1922dfa9a8");
-            ledUUID.Add("ledMatrix", "e95d7b77 -251d-470a-a062-fa1922dfa9a8");
+            ledUUID.Add("ledMatrix", "e95d7b77-251d-470a-a062-fa1922dfa9a8");
             ledUUID.Add("ledScrollingDelay", "e95d93ee-251d-470a-a062-fa1922dfa9a8");
             uuidToEventname.Add(buttonUUID["buttonA"], "standlight_on");
             uuidToEventname.Add(buttonUUID["buttonB"], "standlight_off");
             LogOutput("Bluetooth Low Energyデバイスの検索開始");
             LogOutput("-----------------------");
             StartWatcher();
+        }
+        private void Watcher_DeviceUpdated(DeviceWatcher sender, DeviceInformationUpdate deviceInfo)
+        {
+            LogOutput("更新 ID:" + deviceInfo.Id);
+            LogOutput("-----------------------");
+            if (deviceInfo.Id.IndexOf(bleDeviceMacId) > 0)
+            {
+                DeviceSetup(deviceInfo.Id);
+            }
         }
 
         private void Watcher_DeviceAdded(DeviceWatcher sender, DeviceInformation deviceInfo)
@@ -193,6 +202,7 @@ namespace BLEConnectController
             var selector = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
             deviceWatcher = DeviceInformation.CreateWatcher(selector, null, DeviceInformationKind.AssociationEndpoint);
             deviceWatcher.Added += Watcher_DeviceAdded;
+            deviceWatcher.Updated += Watcher_DeviceUpdated;
             deviceWatcher.Start();
         }
     }
